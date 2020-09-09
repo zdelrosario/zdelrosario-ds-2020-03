@@ -1,0 +1,131 @@
+---
+title: "Example EDA"
+author: ZDR
+output: github_document
+---
+
+```{r setup}
+library(tidyverse)
+```
+
+# Diamonds
+<!-- ----------------------------------------------------------------------------------------- -->
+
+Let's demonstrate what EDA "looks like" by way of example. This is me investigating the `diamonds` dataset.
+
+## Background
+<!-- ------------------------------- -->
+
+Dataset of [diamonds](https://en.wikipedia.org/wiki/Diamond_(gemstone))
+
+The 4 C's are used to judge a diamond's quality (and therefore its value):
+
+[carat](https://en.wikipedia.org/wiki/Carat_(mass)), a unit of mass [`1 ct = 200 mg`]
+- *Larger is better*
+
+![carat](~/src/Brillanten.jpg)
+
+[clarity](https://en.wikipedia.org/wiki/Diamond_clarity), a rating of internal and surface blemishes
+- *Clearer is better*
+
+![clarity](~/src/Diamond-Clarity.jpg)
+
+[color](https://en.wikipedia.org/wiki/Diamond_color), caused by impurities
+- *Clear tends to be more desirable*
+
+![color](~/src/diamond-color-scale.png)
+
+[cut](https://en.wikipedia.org/wiki/Diamond_cut), the style and quality of the diamond's geometric shape
+- *Ideal is best!*
+
+![cut](~/src/diamond-cut.png)
+
+## Initial look
+<!-- ------------------------------- -->
+
+```{r}
+diamonds %>% glimpse()
+```
+
+**Observations**:
+
+- I'm interested in the "4 C's" and diamond price:
+  - `carat`, in `ct`
+  - `cut`, a factor
+  - `color`, a factor
+  - `clarity`, a factor
+  - `price`, in USD
+
+```{r}
+diamonds %>% select(carat, cut, color, clarity, price) %>% summary()
+```
+
+**Observations**:
+
+- `carat` runs from about 0.2 to 5; larger is better.
+- `cut` runs from `Fair` to `Ideal`, in ascending order.
+- `color` runs from `D` to `J`; `D` is clear and higher letters indicate a greater presence of yellow. Clear (`D`) is [more desirable](https://en.wikipedia.org/wiki/Diamond_color).
+- `clarity` runs from `I1` (included) to `IF` (internally flawless); this is the [modern GIA scale](https://en.wikipedia.org/wiki/Diamond_clarity#Modern_GIA_grading_system)
+- `price` runs from $326 to $18,823.
+
+## 1d EDA
+<!-- ------------------------------- -->
+
+```{r, fig.width=6}
+diamonds %>%
+
+  ggplot(aes(price)) +
+  geom_histogram(bins = 120)
+```
+
+**Observations**:
+
+- Large peak in prices around `$1000`
+- Smaller, broader peak in prices around `$4000`
+- Long asymmetric tail stretching up to ~`$18,000`
+
+### Deeper look
+<!-- ------------------------------- -->
+
+```{r, fig.width=6}
+diamonds %>%
+  filter(price < 2000) %>%
+
+  ggplot(aes(price)) +
+  geom_histogram(bins = 100)
+```
+
+**Observations**:
+
+- The peak seems to be closer to `$750` than `$1000`
+- There's an *odd gap* in prices near `$1,500`....
+- There are strange "fingers": Prices seemingly clustered near special values.
+
+**END**
+
+
+<!-- ----------------------------------------------------------------------------------------- -->
+
+
+
+
+## Bonus
+
+This is the figure that will be in each team's Google Doc:
+
+```{r, fig.width=6}
+diamonds %>%
+
+  ggplot(aes(carat, price)) +
+  geom_point(alpha = 1 / 4, size = 1) +
+  ## geom_smooth(se = FALSE) +
+
+  scale_x_log10() +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(
+    x = "Carat",
+    y = "Price ($)"
+  )
+## ggsave("../images/eda_example.png")
+```
