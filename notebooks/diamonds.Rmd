@@ -1,0 +1,135 @@
+---
+title: "Diamonds Report"
+author: "Zachary del Rosario"
+date: 2020-09-16
+output:
+  github_document
+---
+
+An example analysis of the `diamonds` dataset.
+
+```{r setup}
+library(tidyverse)
+library(rzdr) # My custom library; https://github.com/zdelrosario/rzdr
+library(cowplot)
+```
+
+# First Look
+<!-- -------------------------------------------------- -->
+
+You should **always** do your first checks when studying a dataset!
+
+```{r glimpse}
+diamonds %>% glimpse()
+```
+
+We have observations on `carat, cut, color, clarity, price`; these are the variables I focus on.
+
+```{r summary}
+diamonds %>% summary()
+```
+
+`summary` gives us a sense of variation across the entire dataset, but only in a univariate way.
+
+# Carat seems most important
+<!-- -------------------------------------------------- -->
+
+Here's my figure that intimates that carat is the most important variable for
+determining price.
+
+```{r vis1}
+diamonds %>%
+
+  ggplot(aes(carat, price, color = cut)) +
+  geom_smooth(se = FALSE) +
+
+  scale_x_log10() +
+  scale_y_log10() +
+  viridis::scale_color_viridis(name = "Cut", discrete = TRUE) +
+  theme_common() +
+  labs(
+    x = "Carat",
+    y = "Diamond Price"
+  )
+```
+
+Note that this is *not* conclusive by itself; other variables could account
+(conceivable) co-vary with carat and equally-explain the price. The regression
+analysis below controls for other variables.
+
+# Focus on pricing discontinuities
+<!-- ------------------------- -->
+
+The following are closer looks at the price-carat relationship, using boxplots.
+
+```{r vis4}
+p1.disco <-
+  diamonds %>%
+  filter(
+    0.47 <= carat,
+    carat <= 0.53
+  ) %>%
+
+  ggplot(aes(carat, price)) +
+  geom_boxplot(aes(group = carat), notch = TRUE) +
+
+  theme_common() +
+  labs(
+    x = "Carat",
+    y = "Diamond Price"
+  )
+
+p2.disco <-
+  diamonds %>%
+  filter(
+    0.67 <= carat,
+    carat <= 0.73
+  ) %>%
+
+  ggplot(aes(carat, price)) +
+  geom_boxplot(aes(group = carat), notch = TRUE) +
+
+  theme_common() +
+  labs(
+    x = "Carat",
+    y = "Diamond Price"
+  )
+
+plot_grid(
+  p1.disco,
+  p2.disco,
+  nrow = 1,
+  ncol = 2
+)
+```
+
+Looking at these, I see the price jump around `carat == 0.5` and `carat == 0.7` as indicative of pricing anomalies. Essentially: People are willing to pay a lot more for diamonds that are at or above these "special" values.
+
+# Model
+<!-- -------------------------------------------------- -->
+
+Fit model near "focal point" of `carat == 0.5` based on Scott and Yelowitz (2012).
+
+```{r fit-focal-0.5}
+fit_c0.5 <-
+  diamonds %>%
+  filter(
+    0.4 <= carat,
+    carat <= 0.6
+  ) %>%
+  mutate(bump = carat >= 0.5) %>%
+
+  lm(
+    data = .,
+    formula = log(price) ~ carat + cut + color + clarity + bump
+  )
+
+summary(fit_c0.5)
+```
+
+These model results tell me a number of things:
+
+- The regression coefficient on `carat` is *large*, indicating that this is a very important variable even when accounting for `cut, color, clarity` in the regression
+  - This is called *controlling* for other factors (here `cut, color, clarity`)
+- The `bump` variable is also *large*; this model term represents the "price bump" that occurs simply by having a carat at or above the target focal point of `carat == 0.5`. This is the "discontinuous" part of the regression.
+  - This `bump` idea is related to the notion of a [regression discontinuity](https://en.wikipedia.org/wiki/Regression_discontinuity_design), which we *will not* cover in this course
