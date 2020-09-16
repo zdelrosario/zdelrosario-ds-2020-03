@@ -53,8 +53,8 @@ diamonds %>%
   )
 ```
 
-Note that this is *not* conclusive by itself; other variables could account
-(conceivable) co-vary with carat and equally-explain the price. The regression
+Note that this is *not* conclusive by itself; other variables could
+(conceivably) co-vary with carat and equally-explain the price. The regression
 analysis below controls for other variables.
 
 # Focus on pricing discontinuities

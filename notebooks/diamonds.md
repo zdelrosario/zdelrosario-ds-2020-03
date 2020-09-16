@@ -125,8 +125,8 @@ diamonds %>%
 ![](diamonds_files/figure-gfm/vis1-1.png)<!-- -->
 
 Note that this is *not* conclusive by itself; other variables could
-account (conceivable) co-vary with carat and equally-explain the price.
-The regression analysis below controls for other variables.
+(conceivably) co-vary with carat and equally-explain the price. The
+regression analysis below controls for other variables.
 
 # Focus on pricing discontinuities
 
