@@ -6,11 +6,16 @@ Zach
 This notebook illustrates how difficult it is to differentiate between a
 power law
 
-\[y = x^a\]
+  
+![y = x^a](https://latex.codecogs.com/png.latex?y%20%3D%20x%5Ea
+"y = x^a")  
 
 and an exponential
 
-\[y = \exp(x)\]
+  
+![y =
+\\exp(x)](https://latex.codecogs.com/png.latex?y%20%3D%20%5Cexp%28x%29
+"y = \\exp(x)")  
 
 through visual comparison
     alone.

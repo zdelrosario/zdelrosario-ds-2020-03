@@ -3,7 +3,8 @@ title: "Challenges of visual comparison"
 author: "Zach"
 date: 2020-09-22
 output:
-  github_document
+  github_document:
+    pandoc_args: --webtex
 ---
 
 This notebook illustrates how difficult it is to differentiate between a power law
