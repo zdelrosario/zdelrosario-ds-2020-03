@@ -1,0 +1,84 @@
+---
+title: "Challenges of visual comparison"
+author: "Zach"
+date: 2020-09-22
+output:
+  github_document
+---
+
+This notebook illustrates how difficult it is to differentiate between a power law
+
+$$y = x^a$$
+
+and an exponential
+
+$$y = \exp(x)$$
+
+through visual comparison alone.
+
+```{r setup}
+library(tidyverse)
+```
+
+Generate data from an exponential and a power law.
+
+```{r gen-data}
+df_data <-
+tibble(x = seq(0, 10, length.out = 100)) %>%
+  mutate(
+    y_line = 1000 * x,
+    y_exp = exp(x),
+    y_pow = x ^ 4.5
+  ) %>%
+  pivot_longer(
+    names_to = c(".value", "fun"),
+    names_sep = "_",
+    cols = c(y_line, y_exp, y_pow)
+  ) %>%
+  mutate(fun = fct_relevel(fun, "line", "exp", "pow"))
+```
+
+## Natural scale
+<!-- ------------------------- -->
+
+Can you visually distinguish between the two nonlinear functions?
+
+```{r scale-natural}
+df_data %>%
+  ggplot(aes(x, y)) +
+  geom_point() +
+
+  facet_wrap(~fun) +
+  theme_minimal()
+```
+
+## Semilog scale
+<!-- ------------------------- -->
+
+A semilog scale can help us see an exponential trend.
+
+```{r scale-semilog}
+df_data %>%
+  ggplot(aes(x, y)) +
+  geom_point() +
+
+  scale_y_log10() +
+  facet_wrap(~fun) +
+  theme_minimal()
+```
+
+## Loglog scale
+<!-- ------------------------- -->
+
+A loglog scale can help us see a power law trend.
+
+```{r scale-loglog}
+df_data %>%
+  ggplot(aes(x, y)) +
+  geom_point() +
+
+  scale_x_log10() +
+  scale_y_log10() +
+  facet_wrap(~fun) +
+  theme_minimal()
+```
