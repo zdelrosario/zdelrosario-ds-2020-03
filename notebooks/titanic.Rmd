@@ -1,0 +1,61 @@
+---
+title: "RMS Titanic: Fishy Plots"
+author: "Zach"
+date: 2020-09-24
+output:
+  github_document:
+    toc: true
+---
+
+```{r setup}
+library(tidyverse)
+df_titanic <- as_tibble(Titanic)
+```
+
+# Fishy Bar Charts
+<!-- -------------------------------------------------- -->
+
+Let's compute the proportions, as in the challenge
+
+```{r compute-prop}
+## NOTE: No need to edit! We'll cover how to
+## do this calculation in a later exercise.
+df_prop <-
+  df_titanic %>%
+  group_by(Class, Sex, Age) %>%
+  mutate(
+    Total = sum(n),
+    Prop = n / Total
+  ) %>%
+  ungroup()
+
+df_prop
+```
+
+If we try to plot this with only aesthetics for `Sex, Class`, we get the following:
+
+```{r q4-mistake}
+df_prop %>%
+  filter(Survived == "Yes") %>%
+
+  ggplot(aes(Class, Prop, fill = Sex)) +
+  geom_col(position = "dodge") +
+
+  scale_y_continuous(labels = scales::label_percent())
+```
+
+Note that this *falsely* implies that everyone in the 1st and 2nd classes survived! Adding an aesthetic for `Age` helps reveal what went wrong:
+
+```{r q4-fixed}
+df_prop %>%
+  filter(Survived == "Yes") %>%
+
+  ggplot(aes(Class, Prop, fill = Sex, color = Age)) +
+  geom_col(position = "dodge") +
+
+  scale_y_continuous(labels = scales::label_percent())
+```
+
+Ggplot essentially hid some of the bars, which contributed to a false impression of the data. It turns out to not be a huge deal for the Female passengers (Adults and Children had not-too-dissimilar survival rates), but for Males this is *extremely misleading*.
+
+**Punchline**: Know thine data! If there are variables you're not plotting, make sure you're at least **aware** of the fact that you're not plotting them!
