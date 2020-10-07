@@ -1,14 +1,13 @@
----
-title: "Michelson Data: Speed of Light in Air"
-author: "Zach"
-date: 2020-09-28
-output:
-  github_document
----
+Michelson Data: Speed of Light in Air
+================
+Zach
+2020-09-28
 
-The purpose of this notebook is to approximate the real effects of temperature on the speed-of-light in air, due to changes in the index of refraction.
+The purpose of this notebook is to approximate the real effects of
+temperature on the speed-of-light in air, due to changes in the index of
+refraction.
 
-```{r message=FALSE, warning=FALSE}
+``` r
 # Libraries
 library(tidyverse)
 library(googlesheets4)
@@ -35,7 +34,7 @@ df_q2 <-
 
 Estimate the effect of temperature-varying refraction on lightspeed.
 
-```{r refraction}
+``` r
 df_q2 %>%
   mutate(
     T_K = (Temp - 32) * 5/9 + 273.15, # Convert to Kelvin
@@ -63,7 +62,15 @@ df_q2 %>%
   )
 ```
 
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+![](michelson_files/figure-gfm/refraction-1.png)<!-- -->
+
 **Observations**:
 
-- The predicted variation in lightspeed in a medium due to temperature-dependent index of refraction for air is *much much smaller* than the observed variation in measured speed-of-light values.
-  - Therefore, temperature does not adequately explain the variation we see with temperature.
+  - The predicted variation in lightspeed in a medium due to
+    temperature-dependent index of refraction for air is *much much
+    smaller* than the observed variation in measured speed-of-light
+    values.
+      - Therefore, temperature does not adequately explain the variation
+        we see with temperature.

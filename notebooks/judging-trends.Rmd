@@ -1,0 +1,92 @@
+---
+title: "Judging Trends Under Noise"
+author: "Zach"
+date: 2020-09-30
+output:
+  github_document
+---
+
+This short notebook is about judging trends when those trends are corrupted by noise.
+
+```{r setup}
+library(tidyverse)
+
+filename <- "./data/stang.csv"
+df_stang <- read_csv(filename)
+
+df_stang_long <-
+  df_stang %>%
+  pivot_longer(
+    names_to = c(".value", "angle"),
+    names_sep = "_",
+    cols = c(-thick, -alloy)
+  ) %>%
+  mutate(angle = as.integer(angle)) %>%
+  filter(E >= 0, nu >= 0)
+```
+
+## Little data, a dubious trend
+-------------------------
+
+First, let's look at the elasticity against sample thickness:
+
+```{r trend1}
+df_stang_long %>%
+
+  ggplot(aes(thick, E)) +
+  geom_point(size = 3) +
+  geom_smooth(se = FALSE) +
+  rzdr::theme_common()
+```
+
+**Observations**:
+
+- There is a general negative trend between `E` and `thick`
+- However, note that this trend isn't *monotone*; it doesn't go *only down*, it goes down-up-down
+  - For variables like elasticity and thickness, it's *dubious* that we would see a non-monotone trend like this. Therefore, I think this pattern is probably spurious.
+
+## Lots of data, lots of noise
+-------------------------
+
+Next, let's look at a case where we have *tons* of data:
+
+```{r trend2}
+n <- 1e3
+tibble(x = seq(0, 1, length.out = n)) %>%
+  mutate(y = x + rnorm(sd = 3, n = n)) %>%
+
+  ggplot(aes(x, y)) +
+  geom_point()
+```
+
+**Observations**:
+
+- Since I generated the data, *I know* there's a trend underlying the data.
+- However, since there's *a ton* of noise, even having `1000` data points doesn't make things clearer.
+
+## Little data, little noise
+-------------------------
+
+One last example:
+
+```{r trend3}
+n <- 15
+tibble(x = seq(0, 1, length.out = n)) %>%
+  mutate(y = sin(2 * pi * x) + rnorm(sd = 0.1, n = n)) %>%
+
+  ggplot(aes(x, y)) +
+  geom_point()
+```
+
+**Observations**:
+
+- Since I generated the data, *I know* there's a trend underlying the data.
+- Here we have just 15 observations (with Stang we had 26), but the trend is fairly clear.
+
+# Punchline
+--------------------------------------------------
+
+"More data" is **not** always the right answer. It depends on:
+
+- The strength of the underlying **signal** (or **trend**)
+- The degree of **noise** lying on top of that signal
